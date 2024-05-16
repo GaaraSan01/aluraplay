@@ -12,7 +12,7 @@ $statement-> bindValue(1, $id);
 $statement->execute();
 
 if($statement->execute() === false){
-    header('Location:/index.php?suceso=0');
+    header('Location:/?suceso=0');
 }else {
-    header('Location:/index.php?sucesso=1');
+    header('Location:/?sucesso=1');
 }
