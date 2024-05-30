@@ -18,15 +18,22 @@ class NovoVideoController implements Controller
 
         if($url === false){
             header('Location:/?suceso=0');
-            exit();
+            return;
         }
         
         if($title === false){
             header('Location:/?sucesso=0');
-            exit();
+            return;
         }
 
-        if($this->videoRepository->add(new Video($url, $title)) === false){
+        $video = new Video($url, $title);
+        // if(){
+        //     //processa o upload
+        //     //armazena o caminho no meu objeto video
+        //     $video->setFilePath('');
+        // }
+
+        if($this->videoRepository->add($video) === false){
             header('Location:/?sucesso=0');
         }else {
             header('Location:/?sucesso=1');

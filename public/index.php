@@ -1,5 +1,6 @@
 <?php
 
+session_start();
 // var_dump($_SERVER);
 // exit();
 
@@ -21,6 +22,13 @@ $routes = require_once __DIR__ . '/../config/router.php';
 
 $pathInfo = $_SERVER['PATH_INFO'] ?? '/';
 $httpMethod = $_SERVER['REQUEST_METHOD'];
+
+$isLoginRouter = $pathInfo === '/login';
+
+if (!array_key_exists('logado', $_SESSION) && !$isLoginRouter) {
+    header('Location: /login');
+    return;
+}
 
 $key = "$httpMethod|$pathInfo";
 
