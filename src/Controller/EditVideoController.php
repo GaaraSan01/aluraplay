@@ -35,6 +35,16 @@ class EditVideoController implements Controller
         }
         $video = new Video($url, $title);
         $video->setId($id);
+
+        if($_FILES['image']['error'] === UPLOAD_ERR_OK){
+            //processa o upload
+            //armazena o caminho no meu objeto video
+            move_uploaded_file(
+                $_FILES['image']['tmp_name'],
+                __DIR__ . '/../../public/img/uploads/' . $_FILES['image']['name']
+            );
+            $video->setFilePath($_FILES['image']['name']);
+        }
         
         
         if($this->videoRepository->update($video) === false){

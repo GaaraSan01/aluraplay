@@ -34,7 +34,7 @@ class Video
 
     public function setFilePath(string $filePath): void
     {
-        $this->filePath;
+        $this->filePath = $filePath;
     }
 
     public function getFilePath(): ?string

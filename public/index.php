@@ -1,15 +1,11 @@
 <?php
 
 session_start();
+session_regenerate_id();
 // var_dump($_SERVER);
 // exit();
 
-use Alura\Mvc\Controller\EditVideoController;
-use Alura\Mvc\Controller\FormVideoController;
-use Alura\Mvc\Controller\NovoVideoController;
 use Alura\Mvc\Controller\PageNotFoundController;
-use Alura\Mvc\Controller\RemoveVideoController;
-use Alura\Mvc\Controller\VideoListController;
 use Alura\Mvc\Repository\VideoRepository;
 
 require_once __DIR__ . '/../vendor/autoload.php';
