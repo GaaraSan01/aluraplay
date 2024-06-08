@@ -2,14 +2,19 @@
 
 namespace Alura\Mvc\Controller;
 
-class LoginFormController implements Controller
+use Nyholm\Psr7\Response;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+
+class LoginFormController extends ControllerWithHtml
 {
-    public function processaRequisicao(): void
+    public function processaRequisicao(ServerRequestInterface $request): ResponseInterface
     {
-        if(($_SESSION['logado'] ?? false) === true){
-            header('Location: /');
-            return;
+        if(array_key_exists('logado', $_SESSION) && $_SESSION['logado'] === true){
+            return new Response(302, [
+                'Location'=> '/'
+            ]);
         }
-        require_once __DIR__ . '/../../views/login-form.php';
+        echo $this->renderTemplate('login-form');
     }
 }

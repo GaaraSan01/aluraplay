@@ -3,22 +3,28 @@
 namespace Alura\Mvc\Controller;
 
 use Alura\Mvc\Repository\VideoRepository;
+use Nyholm\Psr7\Response;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
-class FormVideoController implements Controller
+class FormVideoController extends ControllerWithHtml
 {
     public function __construct(private VideoRepository $videoRepository)
     {
     }
 
-    public function processaRequisicao(): void
+    public function processaRequisicao(ServerRequestInterface $request): ResponseInterface
     {
-        $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+        $queryBody = $request->getParsedBody();
+        $id = filter_var($queryBody['id'], FILTER_VALIDATE_INT);
         $video = null;
 
         if ($id !== false && $id !== null) {
             $video = $this-> videoRepository->find($id);
         }
 
-        require_once __DIR__ . '/../../views/form-html.php';
+        return new Response(200, body: $this->renderTemplate('form-html', [
+            'video'=> $video
+        ]));
     }
 }

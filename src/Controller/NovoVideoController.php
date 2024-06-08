@@ -2,29 +2,39 @@
 
 namespace Alura\Mvc\Controller;
 use Alura\Mvc\Entity\Video;
+use Alura\Mvc\Helper\FlashMessageTrait;
 use Alura\Mvc\Repository\VideoRepository;
 use finfo;
+use Nyholm\Psr7\Response;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 class NovoVideoController implements Controller
 {
+    use FlashMessageTrait;
     public function __construct(private VideoRepository $videoRepository)
     {
         
     }
 
-    public function processaRequisicao(): void
+    public function processaRequisicao(ServerRequestInterface $request): ResponseInterface
     {
-        $url = filter_input(INPUT_POST, 'url', FILTER_VALIDATE_URL);
-        $title = filter_input(INPUT_POST, 'title');
+        $queryBory = $request->getParsedBody();
+        $url = filter_var($queryBory['url'], FILTER_VALIDATE_URL);
+        $title = filter_var($queryBory['title']);
 
         if($url === false){
-            header('Location:/?suceso=0');
-            return;
+            $this->addMessage('URL inválida!');
+            return new Response(302, [
+                'Location'=> '/novo-video'
+            ]);
         }
         
         if($title === false){
-            header('Location:/?sucesso=0');
-            return;
+            $this->addMessage('Titulo inválido!');
+            return new Response(302, [
+                'Location'=> '/novo-video'
+            ]);
         }
 
         $video = new Video($url, $title);
@@ -44,11 +54,15 @@ class NovoVideoController implements Controller
                 $video->setFilePath($safeFileName);
             }
         }
-
         if($this->videoRepository->add($video) === false){
-            header('Location:/?sucesso=0');
+            $this->addMessage('Erro ao adicionar o video!');
+            return new Response(302, [
+                'Location'=> '/novo-video'
+            ]);
         }else {
-            header('Location:/?sucesso=1');
+            return new Response(302, [
+                'Location'=> '/'
+            ]);
         }
     }
 }

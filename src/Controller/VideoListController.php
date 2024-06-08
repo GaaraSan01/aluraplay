@@ -3,8 +3,11 @@
 namespace Alura\Mvc\Controller;
 
 use Alura\Mvc\Repository\VideoRepository;
+use Nyholm\Psr7\Response;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
-class VideoListController implements Controller
+class VideoListController extends ControllerWithHtml
 {
 
 
@@ -12,9 +15,12 @@ class VideoListController implements Controller
     {
     }
 
-    public function processaRequisicao(): void
+    public function processaRequisicao(ServerRequestInterface $request): ResponseInterface
     {
         $videoList = $this->videoRepository->all();
-        require_once __DIR__ .  '/../../views/video-list.php';
+        return new Response(302, body:$this->renderTemplate(
+            'video-list', 
+            ['videoList' => $videoList]
+        ));
     }
 }

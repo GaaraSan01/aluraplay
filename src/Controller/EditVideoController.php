@@ -3,35 +3,45 @@
 namespace Alura\Mvc\Controller;
 
 use Alura\Mvc\Entity\Video;
+use Alura\Mvc\Helper\FlashMessageTrait;
 use Alura\Mvc\Repository\VideoRepository;
+use Nyholm\Psr7\Response;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 class EditVideoController implements Controller
 {
+    use FlashMessageTrait;
     public function __construct(private VideoRepository $videoRepository)
     {
         
     }
 
-    public function processaRequisicao(): void
+    public function processaRequisicao(ServerRequestInterface $request): ResponseInterface
     {
-        $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+        $queryBody = $request->getParsedBody();
+        $id = filter_var($queryBody['id'], FILTER_VALIDATE_INT);
 
         if($id === false && $id !== null){
             header('Location: /?sucesso=0');
             exit();
         }
         
-        $url = filter_input(INPUT_POST, 'url', FILTER_VALIDATE_URL);
-        $title = filter_input(INPUT_POST, 'title');
+        $url = filter_var($queryBody['url'], FILTER_VALIDATE_URL);
+        $title = filter_var($queryBody['title']);
         
         if($url === false){
-            header('Location:/?suceso=0');
-            exit();
+            $this->addMessage('URL inválida!');
+            return new Response(302, [
+                'Location' => '/editar-video'
+            ]);
         }
         
         if($title === false){
-            header('Location: /?sucesso=0');
-            exit();
+            $this->addMessage('Titulo inválido!');
+            return new Response(302, [
+                'Location' => '/editar-video'
+            ]);
         }
         $video = new Video($url, $title);
         $video->setId($id);
@@ -48,9 +58,14 @@ class EditVideoController implements Controller
         
         
         if($this->videoRepository->update($video) === false){
-            header('Location: /?sucesso=0');
+            $this->addMessage('Erro ao editar o video!');
+            return new Response(302, [
+                'Location' => '/editar-video'
+            ]);
         } else {
-            header('Location: /?sucesso=1');
+            return new Response(302, [
+                'Location' => '/'
+            ]);
         }
     }
 }
