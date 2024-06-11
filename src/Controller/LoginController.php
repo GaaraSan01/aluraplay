@@ -7,8 +7,9 @@ use Nyholm\Psr7\Response;
 use PDO;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
-class LoginController implements Controller
+class LoginController implements RequestHandlerInterface
 {
     use FlashMessageTrait;
     private PDO $pdo;
@@ -19,7 +20,7 @@ class LoginController implements Controller
         $this->pdo = new PDO("sqlite:$dbPath");
     }
 
-    public function processaRequisicao(ServerRequestInterface $response): ResponseInterface
+    public function handle(ServerRequestInterface $response): ResponseInterface
     {
         $queryBody = $response->getParsedBody();
         $email = filter_var($queryBody['email'], FILTER_VALIDATE_EMAIL);

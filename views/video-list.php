@@ -1,4 +1,4 @@
-<?php require_once __DIR__ . '/inicio-html.php'; ?><ul class="videos__container" alt="videos alura">
+<?php $this->layout('layout'); ?><ul class="videos__container" alt="videos alura">
     <?php if (!str_starts_with($video->url, 'http')) : ?>
         <?php foreach ($videoList as $video) : ?>
             <li class="videos__item">
@@ -21,4 +21,3 @@
         <?php endforeach ?>
     <?php endif ?>
 </ul>
-<?php require_once __DIR__ .  '/fim-html.php';

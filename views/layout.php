@@ -29,10 +29,14 @@
         </nav>
 
     </header>
-<?php if(isset($_SESSION['message'])): ?>
+    <?php if (isset($_SESSION['message'])) : ?>
 
-    <h2 class="formulario__titulo error">
-        <?= $_SESSION['message']?>
-        <?php unset($_SESSION['message']) ?>
-    </h2>
-<?php endif ?>
+        <h2 class="formulario__titulo error">
+            <?= $_SESSION['message'] ?>
+            <?php unset($_SESSION['message']) ?>
+        </h2>
+    <?php endif ?>
+        <?= $this->section('content');?>
+</body>
+
+</html>

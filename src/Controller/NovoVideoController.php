@@ -8,8 +8,9 @@ use finfo;
 use Nyholm\Psr7\Response;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
-class NovoVideoController implements Controller
+class NovoVideoController implements RequestHandlerInterface
 {
     use FlashMessageTrait;
     public function __construct(private VideoRepository $videoRepository)
@@ -17,7 +18,7 @@ class NovoVideoController implements Controller
         
     }
 
-    public function processaRequisicao(ServerRequestInterface $request): ResponseInterface
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $queryBory = $request->getParsedBody();
         $url = filter_var($queryBory['url'], FILTER_VALIDATE_URL);

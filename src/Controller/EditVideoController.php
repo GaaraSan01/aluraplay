@@ -5,11 +5,13 @@ namespace Alura\Mvc\Controller;
 use Alura\Mvc\Entity\Video;
 use Alura\Mvc\Helper\FlashMessageTrait;
 use Alura\Mvc\Repository\VideoRepository;
+use finfo;
 use Nyholm\Psr7\Response;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
-class EditVideoController implements Controller
+class EditVideoController implements RequestHandlerInterface
 {
     use FlashMessageTrait;
     public function __construct(private VideoRepository $videoRepository)
@@ -17,14 +19,17 @@ class EditVideoController implements Controller
         
     }
 
-    public function processaRequisicao(ServerRequestInterface $request): ResponseInterface
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
+        $queryParams = $request->getQueryParams();
         $queryBody = $request->getParsedBody();
-        $id = filter_var($queryBody['id'], FILTER_VALIDATE_INT);
+        $id = filter_var($queryParams['id'], FILTER_VALIDATE_INT);
 
         if($id === false && $id !== null){
-            header('Location: /?sucesso=0');
-            exit();
+            $this->addMessage('Id Inválido!');
+            return new Response(302, [
+                'Location' => '/'
+            ]);
         }
         
         $url = filter_var($queryBody['url'], FILTER_VALIDATE_URL);
@@ -46,26 +51,30 @@ class EditVideoController implements Controller
         $video = new Video($url, $title);
         $video->setId($id);
 
-        if($_FILES['image']['error'] === UPLOAD_ERR_OK){
-            //processa o upload
-            //armazena o caminho no meu objeto video
-            move_uploaded_file(
-                $_FILES['image']['tmp_name'],
-                __DIR__ . '/../../public/img/uploads/' . $_FILES['image']['name']
-            );
-            $video->setFilePath($_FILES['image']['name']);
+        $files = $request->getUploadedFiles();
+        $uploadedImage = $files['image'];
+
+        if($uploadedImage->getError() === UPLOAD_ERR_OK){
+            $finfo = new \finfo(FILEINFO_MIME_TYPE);
+            $tmpFile = $uploadedImage->getStream()->getMetadata('uri');
+            $mimeType = $finfo->file($tmpFile);
+            if (str_starts_with($mimeType, 'image/')) {
+                $safeFileName = uniqid('upload_') . '_' . pathinfo($uploadedImage->getClientFilename(), PATHINFO_BASENAME);
+                $uploadedImage->moveTo(__DIR__ . '/../../public/img/uploads/' . $safeFileName);
+                $video->setFilePath($safeFileName);
+            }
         }
+        $success = $this->videoRepository->update($video);
         
-        
-        if($this->videoRepository->update($video) === false){
-            $this->addMessage('Erro ao editar o video!');
-            return new Response(302, [
-                'Location' => '/editar-video'
-            ]);
-        } else {
+        if ($success === false) {
+            $this->addMessage('Erro ao atualizar o vídeo');
             return new Response(302, [
                 'Location' => '/'
             ]);
         }
+
+        return new Response(302, [
+            'Location' => '/'
+        ]);
     }
 }
